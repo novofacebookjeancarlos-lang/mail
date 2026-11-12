@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="pt-BR">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>E-mail profissional</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#f5f6f1;color:#18291e;font:16px system-ui,sans-serif}main{width:min(90%,780px);margin:10vh auto}h1{font-size:clamp(2.6rem,8vw,5rem);line-height:1;letter-spacing:-.07em;margin:.3em 0}p{line-height:1.55}form{background:white;padding:1.5rem;border-radius:1rem;display:grid;gap:.85rem;margin-top:2rem}input,button{font:inherit;padding:.8rem;border-radius:.5rem;border:1px solid #a5b1a7}button{background:#155e42;color:white;border:0;cursor:pointer}output{display:block;white-space:pre-wrap}
+</style>
+<main>
+<p>E-mail profissional</p>
+<h1>Seu negócio. Seu endereço.</h1>
+<p>Use um endereço como <strong>contato@empresa.com.br</strong>. O plano piloto prevê uma caixa por <strong>R$ 4,99/mês</strong>.</p>
+<form>
+<label for="domain">Consulte o DNS do seu domínio</label>
+<input id="domain" placeholder="empresa.com.br" required autocomplete="off">
+<button>Ver registros de e-mail</button>
+<output aria-live="polite"></output>
+</form>
+</main>
+<script>
+const form = document.querySelector('form')
+const output = document.querySelector('output')
+form.addEventListener('submit', async event => {
+  event.preventDefault()
+  output.textContent = 'Consultando DNS…'
+  try {
+    const response = await fetch('/api/dominio?' + new URLSearchParams({ dominio: document.querySelector('input').value }))
+    const data = await response.json()
+    output.textContent = data.error || (data.mx.length
+      ? data.mx.map(record => record.priority + ' — ' + (record.exchange || 'domínio não recebe e-mail')).join('\n')
+      : 'Nenhum registro MX encontrado.')
+  } catch { output.textContent = 'Não foi possível consultar. Tente novamente.' }
+})
+</script>
+</html>
